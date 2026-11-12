@@ -22,7 +22,15 @@ export default {
       }
 
       const xmlText = await response.text();
-      const items: Array<{ title: string; link: string; pubDate: string; description: string }> = [];
+      const noticias: Array<{
+        titulo: string;
+        link: string;
+        fecha: string;
+        descripcion: string;
+        imagen: string | null;
+        categoria: string;
+      }> = [];
+
       const itemMatches = xmlText.match(/<item>([\s\S]*?)<\/item>/g);
 
       if (itemMatches) {
@@ -30,21 +38,35 @@ export default {
           const titleMatch = itemStr.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>|<title>([\s\S]*?)<\/title>/);
           const linkMatch = itemStr.match(/<link>([\s\S]*?)<\/link>/);
           const dateMatch = itemStr.match(/<pubDate>([\s\S]*?)<\/pubDate>/);
-          const descMatch = itemStr.match(/<content:encoded><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>|<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>|<description>([\s\S]*?)<\/description>/);
+          const categoryMatch = itemStr.match(/<category><!\[CDATA\[([\s\S]*?)\]\]><\/category>|<category>([\s\S]*?)<\/category>/);
+          const descMatch = itemStr.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>|<description>([\s\S]*?)<\/description>/);
+          const contentMatch = itemStr.match(/<content:encoded><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/);
 
-          let rawDesc = descMatch ? (descMatch[1] || descMatch[2] || descMatch[3] || '') : '';
-          let cleanDesc = rawDesc
+          // Buscar imagen en media:content, enclosure o dentro del HTML de content:encoded
+          const mediaMatch = itemStr.match(/<media:content[^>]+url="([^">]+)"/);
+          const enclosureMatch = itemStr.match(/<enclosure[^>]+url="([^">]+)"/);
+          const imgTagMatch = (contentMatch?.[1] || '').match(/<img[^>]+src="([^">]+)"/);
+
+          const imagen = mediaMatch?.[1] || enclosureMatch?.[1] || imgTagMatch?.[1] || null;
+
+          // Limpiar descripción (priorizando <description> para que sea un extracto corto)
+          const rawDesc = descMatch ? (descMatch[1] || descMatch[2] || '') : (contentMatch?.[1] || '');
+          const cleanDesc = rawDesc
             .replace(/<[^>]*>?/gm, '')
             .replace(/&#8230;/g, '...')
             .replace(/&nbsp;/g, ' ')
             .replace(/&amp;/g, '&')
+            .replace(/&#8216;|&#8217;/g, "'")
+            .replace(/&#8220;|&#8221;/g, '"')
             .trim();
 
-          items.push({
-            title: titleMatch ? (titleMatch[1] || titleMatch[2] || '').replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '',
+          noticias.push({
+            titulo: titleMatch ? (titleMatch[1] || titleMatch[2] || '').replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '',
             link: linkMatch ? linkMatch[1].trim() : '',
-            pubDate: dateMatch ? dateMatch[1].trim() : '',
-            description: cleanDesc,
+            fecha: dateMatch ? dateMatch[1].trim() : '',
+            descripcion: cleanDesc,
+            imagen,
+            categoria: categoryMatch ? (categoryMatch[1] || categoryMatch[2] || 'Billboard').trim() : 'Billboard',
           });
         }
       }
@@ -52,8 +74,8 @@ export default {
       ctx.body = {
         success: true,
         fuente: "Billboard Argentina",
-        total: items.length,
-        noticias: items.slice(0, 12),
+        total: noticias.length,
+        noticias: noticias.slice(0, 12),
       };
 
     } catch (error: any) {
