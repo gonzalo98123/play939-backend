@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "configuracion_globals",
+  "info": {
+    "singularName": "configuracion-global",
+    "pluralName": "configuracion-globals",
+    "displayName": "Configuracion Global"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "urlStreaming": {
+      "type": "string"
+    },
+    "whatsapp": {
+      "type": "string"
+    },
+    "instagram": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    }
+  }
+}

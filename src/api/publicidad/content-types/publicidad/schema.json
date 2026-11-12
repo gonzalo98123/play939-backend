@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "publicidads",
+  "info": {
+    "singularName": "publicidad",
+    "pluralName": "publicidads",
+    "displayName": "Publicidad"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nombreCliente": {
+      "type": "string"
+    },
+    "imagenAnuncio": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "enlaceUrl": {
+      "type": "string"
+    },
+    "orden": {
+      "type": "integer"
+    }
+  }
+}
