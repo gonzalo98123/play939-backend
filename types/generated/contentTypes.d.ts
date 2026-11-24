@@ -459,6 +459,9 @@ export interface ApiConfiguracionGlobalConfiguracionGlobal
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     email: Schema.Attribute.String;
+    hitArtista: Schema.Attribute.String;
+    hitTitulo: Schema.Attribute.String;
+    hitVideo: Schema.Attribute.Media<'videos'>;
     instagram: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
